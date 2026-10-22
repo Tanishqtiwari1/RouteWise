@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* RouteWise identity: warm paper, ink type, signal-orange accent. */
+@layer base {
+  :root {
+    --background: 40 33% 96%;
+    --foreground: 220 20% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 20% 10%;
+    --muted: 38 22% 91%;
+    --muted-foreground: 30 6% 38%;
+    --accent: 18 100% 95%;
+    --accent-foreground: 16 80% 34%;
+    --primary: 16 92% 50%;
+    --primary-foreground: 0 0% 100%;
+    --ink: 220 20% 10%;
+    --destructive: 354 72% 46%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 158 64% 30%;
+    --warning: 36 92% 36%;
+    --border: 36 18% 84%;
+    --input: 36 14% 78%;
+    --ring: 16 92% 50%;
+  }
+  .dark {
+    --background: 222 18% 7%;
+    --foreground: 40 30% 94%;
+    --card: 222 16% 10%;
+    --card-foreground: 40 30% 94%;
+    --muted: 222 14% 15%;
+    --muted-foreground: 35 10% 64%;
+    --accent: 16 50% 15%;
+    --accent-foreground: 20 95% 72%;
+    --primary: 18 95% 58%;
+    --primary-foreground: 222 20% 8%;
+    --ink: 40 30% 94%;
+    --destructive: 354 72% 58%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 158 50% 50%;
+    --warning: 38 92% 58%;
+    --border: 222 12% 20%;
+    --input: 222 12% 26%;
+    --ring: 18 95% 58%;
+  }
+  * { @apply border-border; }
+  body { @apply bg-background text-foreground antialiased; }
+  h1, h2, h3 { @apply font-display tracking-tight; }
+  :focus-visible { @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background; }
+}
+
+.leaflet-container { font: inherit; background: hsl(var(--muted)); }
+/* Muted base map so routes and markers carry the colour. */
+.leaflet-tile-pane { filter: grayscale(1) contrast(0.92) brightness(1.04); }
+.dark .leaflet-tile-pane { filter: grayscale(1) invert(1) brightness(0.82) contrast(0.9); }
+.leaflet-control-zoom a { color: hsl(var(--foreground)) !important; }
+.tabular { font-variant-numeric: tabular-nums; }
+.font-num { font-family: "Space Grotesk", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+
+@media print {
+  header, nav, .no-print { display: none !important; }
+}

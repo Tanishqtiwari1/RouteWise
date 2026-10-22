@@ -1,0 +1,17 @@
+[project]
+name = "routewise-backend"
+version = "1.0.0"
+requires-python = ">=3.12"
+
+[tool.ruff]
+line-length = 165
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+# B008: FastAPI's Depends()/Query() in defaults is the framework idiom.
+ignore = ["B008", "UP038", "UP046", "UP047"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = ["ignore::DeprecationWarning:starlette.*"]
