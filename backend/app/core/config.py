@@ -17,6 +17,8 @@ class Settings(BaseSettings):
     environment: str = "development"
     database_url: str = f"sqlite:///{BACKEND_DIR / 'data' / 'routewise.db'}"
     data_dir: Path = BACKEND_DIR / "data"
+    # Load the bundled Delhi road network and sample data into an empty database on start-up.
+    demo_seed: bool = False
     # Appended to bare service names (no dot) in CORS origins, e.g. ".onrender.com".
     host_suffix: str = ""
     cors_origins: Annotated[list[str], NoDecode] = Field(default_factory=lambda: ["http://localhost:5173", "http://127.0.0.1:5173"])

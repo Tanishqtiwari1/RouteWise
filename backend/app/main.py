@@ -29,6 +29,14 @@ def create_app() -> FastAPI:
     for r in (health, settings, warehouses, customers, geocode, orders, vehicles, networks, routes, analytics):
         v1.include_router(r.router)
     app.include_router(v1)
+
+    if cfg.demo_seed:
+        @app.on_event("startup")
+        def _demo_seed() -> None:
+            from app.demo_seed import start_in_background
+
+            start_in_background()
+
     return app
 
 

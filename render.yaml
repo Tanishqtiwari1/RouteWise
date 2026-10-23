@@ -23,6 +23,8 @@ services:
         generateValue: true   # copy it from the Render dashboard into the site's key icon
       - key: ROUTEWISE_CORS_ORIGINS
         fromService: { type: web, name: routewise-web, property: host }
+      - key: ROUTEWISE_DEMO_SEED     # fill an empty database with the bundled Delhi demo data
+        value: "true"
       - key: ROUTEWISE_HOST_SUFFIX   # Render passes short service names; public hosts end with this
         value: .onrender.com
       - key: ROUTEWISE_HTTP_USER_AGENT
