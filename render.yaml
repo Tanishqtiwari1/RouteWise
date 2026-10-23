@@ -23,6 +23,8 @@ services:
         generateValue: true   # copy it from the Render dashboard into the site's key icon
       - key: ROUTEWISE_CORS_ORIGINS
         fromService: { type: web, name: routewise-web, property: host }
+      - key: ROUTEWISE_HOST_SUFFIX   # Render passes short service names; public hosts end with this
+        value: .onrender.com
       - key: ROUTEWISE_HTTP_USER_AGENT
         value: RouteWise/1.0 (deployed on Render; set a contact address)
 
@@ -30,7 +32,10 @@ services:
     name: routewise-web
     runtime: static
     rootDir: frontend
-    buildCommand: npm ci && VITE_API_BASE_URL=https://$API_HOST/api/v1 npm run build
+    # API_HOST may be a short service name (e.g. routewise-api-v3om); public hosts end in .onrender.com.
+    buildCommand: >-
+      case "$API_HOST" in *.*) H="$API_HOST" ;; *) H="$API_HOST.onrender.com" ;; esac &&
+      npm ci && VITE_API_BASE_URL="https://$H/api/v1" npm run build
     staticPublishPath: dist
     envVars:
       - key: API_HOST

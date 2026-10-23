@@ -2,7 +2,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Annotated
 
-from pydantic import Field, field_validator
+from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 BACKEND_DIR = Path(__file__).resolve().parents[2]
@@ -17,6 +17,8 @@ class Settings(BaseSettings):
     environment: str = "development"
     database_url: str = f"sqlite:///{BACKEND_DIR / 'data' / 'routewise.db'}"
     data_dir: Path = BACKEND_DIR / "data"
+    # Appended to bare service names (no dot) in CORS origins, e.g. ".onrender.com".
+    host_suffix: str = ""
     cors_origins: Annotated[list[str], NoDecode] = Field(default_factory=lambda: ["http://localhost:5173", "http://127.0.0.1:5173"])
     log_level: str = "INFO"
 
@@ -46,8 +48,21 @@ class Settings(BaseSettings):
     @classmethod
     def split_origins(cls, v):
         items = [o.strip() for o in v.split(",")] if isinstance(v, str) else list(v)
-        # Hosting platforms often pass bare hostnames between services.
-        return [o if "://" in o else f"https://{o}" for o in items if o]
+        return [o for o in items if o]
+
+    @model_validator(mode="after")
+    def normalise_origins(self):
+        # Hosting platforms pass bare hostnames (or short internal service names)
+        # between services: add the scheme and, for names without a dot, the suffix.
+        out = []
+        for o in self.cors_origins:
+            if "://" not in o:
+                if "." not in o and self.host_suffix:
+                    o += self.host_suffix
+                o = f"https://{o}"
+            out.append(o.rstrip("/"))
+        self.cors_origins = out
+        return self
 
     @field_validator("database_url", mode="before")
     @classmethod

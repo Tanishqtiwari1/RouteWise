@@ -1,6 +1,19 @@
 import { DEMO_MODE, DemoReadOnlyError, demoRequest } from "./demo";
 
-export const API_BASE = (import.meta.env.VITE_API_BASE_URL ?? "/api/v1").replace(/\/$/, "");
+/** Resolves the API base URL. A short host name without a dot (as some platforms such
+ * as Render pass between services) gets the current site's parent domain appended. */
+export function resolveApiBase(raw: string, siteHost: string): string {
+  const base = raw.replace(/\/$/, "");
+  const m = base.match(/^(https?:\/\/)([^/:]+)(.*)$/);
+  const dot = siteHost.indexOf(".");
+  if (!m || m[2].includes(".") || dot === -1 || m[2] === "localhost") return base;
+  return `${m[1]}${m[2]}${siteHost.slice(dot)}${m[3]}`;
+}
+
+export const API_BASE = resolveApiBase(
+  import.meta.env.VITE_API_BASE_URL ?? "/api/v1",
+  typeof window !== "undefined" ? window.location.hostname : "",
+);
 
 export class ApiError extends Error {
   constructor(

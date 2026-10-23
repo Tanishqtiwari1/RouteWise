@@ -82,3 +82,13 @@ describe("formatting", () => {
     expect(errorMessage(e)).toBe("weight_kg: must be > 0");
   });
 });
+
+describe("API base resolution", () => {
+  it("completes short service names with the site's domain", async () => {
+    const { resolveApiBase } = await import("@/services/api");
+    expect(resolveApiBase("https://routewise-api-v3om/api/v1", "routewise-web.onrender.com")).toBe("https://routewise-api-v3om.onrender.com/api/v1");
+    expect(resolveApiBase("https://api.example.com/api/v1/", "app.example.com")).toBe("https://api.example.com/api/v1");
+    expect(resolveApiBase("/api/v1", "routewise-web.onrender.com")).toBe("/api/v1");
+    expect(resolveApiBase("http://localhost:8010/api/v1", "localhost")).toBe("http://localhost:8010/api/v1");
+  });
+});
