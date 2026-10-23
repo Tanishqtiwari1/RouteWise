@@ -16,6 +16,7 @@ import { RouteMap, type MapMarker, type MapRoute } from "@/components/map/RouteM
 import { Assumptions, CostBreakdown, PlanActions, RouteHeadline, StopsList, Warnings } from "@/features/RouteDetails";
 import { useAction, useHealth, useNetworks, useOrders, useSettings, useVehicles, useWarehouses } from "@/hooks/queries";
 import { api, ApiError, errorMessage } from "@/services/api";
+import { DEMO_MODE, showcasePlan } from "@/services/demo";
 import type { GeocodeCandidate, Objective, RoutePlan } from "@/types/api";
 import { cn, duration, km, money, num, OBJECTIVE_LABELS } from "@/utils/format";
 
@@ -147,6 +148,14 @@ export default function PlannerPage() {
     setCandidates(null);
   };
 
+  // Read-only demo: show a real, pre-computed showcase result for the current mode.
+  useEffect(() => {
+    if (!DEMO_MODE) return;
+    let cancelled = false;
+    showcasePlan(v.mode).then((p) => { if (!cancelled && p) { setResult(p); setTraceStep(0); setPlaying(false); } });
+    return () => { cancelled = true; };
+  }, [v.mode]);
+
   // UCS search animation
   const traceEvents = result?.trace?.events ?? [];
   const timer = useRef<number | null>(null);
@@ -223,6 +232,9 @@ export default function PlannerPage() {
             )} />
           </div>
 
+          {DEMO_MODE && (
+            <Notice tone="warning">Read-only demo: below is a real result computed by RouteWise's UCS engine on the Delhi road network. Live calculation needs the full app.</Notice>
+          )}
           {noNetwork && (
             <Notice tone="warning">No active road network. <Link to="/network" className="font-medium underline">Import one</Link> to calculate routes.</Notice>
           )}
@@ -381,8 +393,8 @@ export default function PlannerPage() {
             )}
           </div>
 
-          <Button type="submit" size="lg" className="w-full" loading={calc.isPending} disabled={!!noNetwork}>
-            {!calc.isPending && <Calculator />} {calc.isPending ? "Searching road network…" : "Calculate route"}
+          <Button type="submit" size="lg" className="w-full" loading={calc.isPending} disabled={!!noNetwork || DEMO_MODE} title={DEMO_MODE ? "Not available in the read-only demo" : undefined}>
+            {!calc.isPending && <Calculator />} {calc.isPending ? "Searching road network…" : DEMO_MODE ? "Calculate route (full app only)" : "Calculate route"}
           </Button>
         </form>
 
@@ -409,7 +421,7 @@ export default function PlannerPage() {
           trace={traceStep ? traceEvents.slice(0, traceStep) : []}
           fitKey={fitKey}
           fallbackBounds={activeNet ? [activeNet.south, activeNet.west, activeNet.north, activeNet.east] : null}
-          onClick={v.mode === "single" && !result ? (lat, lon) => pickPoint(lat, lon, `${lat.toFixed(5)}, ${lon.toFixed(5)}`) : undefined}
+          onClick={v.mode === "single" && !result && !DEMO_MODE ? (lat, lon) => pickPoint(lat, lon, `${lat.toFixed(5)}, ${lon.toFixed(5)}`) : undefined}
         />
         {result && (
           <div className="pointer-events-none absolute bottom-6 right-3 z-[400] rounded-xl border bg-card/95 px-3 py-2 text-[11px] shadow-float">

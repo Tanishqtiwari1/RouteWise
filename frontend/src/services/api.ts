@@ -1,3 +1,5 @@
+import { DEMO_MODE, DemoReadOnlyError, demoRequest } from "./demo";
+
 export const API_BASE = (import.meta.env.VITE_API_BASE_URL ?? "/api/v1").replace(/\/$/, "");
 
 export class ApiError extends Error {
@@ -43,6 +45,14 @@ export function buildUrl(path: string, query?: Query): string {
 }
 
 async function request<T>(method: string, path: string, opts: { query?: Query; body?: unknown; form?: FormData } = {}): Promise<T> {
+  if (DEMO_MODE) {
+    try {
+      return await demoRequest<T>(method, path, opts.query);
+    } catch (e) {
+      if (e instanceof DemoReadOnlyError) throw new ApiError(403, "demo_read_only", e.message);
+      throw new ApiError(404, "demo_not_available", e instanceof Error ? e.message : String(e));
+    }
+  }
   const headers: Record<string, string> = {};
   const token = getAdminToken();
   if (token) headers["X-Admin-Token"] = token;
@@ -94,5 +104,6 @@ export function errorMessage(e: unknown): string {
 }
 
 export function downloadUrl(path: string, query?: Query) {
+  if (DEMO_MODE) return "data:text/plain;charset=utf-8," + encodeURIComponent("Exports need the full RouteWise app (read-only demo).");
   return buildUrl(path, query);
 }

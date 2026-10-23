@@ -9,6 +9,7 @@ import { Field, Input } from "@/components/ui/input";
 import { useHealth, useSettings } from "@/hooks/queries";
 import { useTheme } from "@/hooks/useTheme";
 import { getAdminToken, setAdminToken } from "@/services/api";
+import { DEMO_MODE, REPO_URL } from "@/services/demo";
 import { cn } from "@/utils/format";
 
 const NAV = [
@@ -26,7 +27,7 @@ const MOBILE_PRIMARY = NAV.slice(0, 4);
 function Wordmark() {
   return (
     <NavLink to="/" className="flex shrink-0 items-center gap-2.5" aria-label="RouteWise home">
-      <img src="/favicon.svg" alt="" className="h-8 w-8" />
+      <img src={`${import.meta.env.BASE_URL}favicon.svg`} alt="" className="h-8 w-8" />
       <span className="font-display text-lg font-semibold tracking-tight">Route<span className="text-primary">Wise</span></span>
     </NavLink>
   );
@@ -50,6 +51,12 @@ export function AppLayout() {
 
   return (
     <div className="flex min-h-screen flex-col">
+      {DEMO_MODE && (
+        <div role="note" className="z-[510] bg-primary px-4 py-2 text-center text-xs font-semibold text-primary-foreground">
+          Read-only demo · a snapshot of sample Delhi data produced by the real RouteWise engine. Calculating routes and editing need the full app —{" "}
+          <a href={REPO_URL} className="underline underline-offset-2" target="_blank" rel="noreferrer">run it from GitHub</a>.
+        </div>
+      )}
       <header className="sticky top-0 z-[500] border-b bg-background/90 backdrop-blur-md">
         <div className="flex h-16 items-center gap-6 px-4 sm:px-6">
           <Wordmark />

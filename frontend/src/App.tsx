@@ -16,7 +16,7 @@ const SettingsPage = lazy(() => import("@/pages/SettingsPage"));
 const page = (el: React.ReactNode) => <Suspense fallback={<div className="p-6"><Skeleton className="h-64" /></div>}>{el}</Suspense>;
 
 function NotFound() {
-  return <EmptyState title="Page not found" action={<Button asChild variant="outline"><a href="/">Back to dashboard</a></Button>} />;
+  return <EmptyState title="Page not found" action={<Button asChild variant="outline"><a href={import.meta.env.BASE_URL}>Back to overview</a></Button>} />;
 }
 
 const router = createBrowserRouter([
@@ -35,7 +35,7 @@ const router = createBrowserRouter([
       { path: "*", element: <NotFound /> },
     ],
   },
-]);
+], { basename: import.meta.env.BASE_URL.replace(/\/$/, "") || "/" });
 
 export default function App() {
   return <RouterProvider router={router} />;
