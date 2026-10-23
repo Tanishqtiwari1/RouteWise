@@ -102,6 +102,21 @@ export default function PlannerPage() {
     if (settings.data.default_vehicle_id) setValue("vehicle_id", settings.data.default_vehicle_id);
   }, [settings.data, setValue]);
 
+  // Re-apply selections once option lists have loaded (native selects show the first option otherwise).
+  useEffect(() => {
+    const list = vehicles.data?.items;
+    if (!list?.length) return;
+    const current = Number(form.getValues("vehicle_id"));
+    const pick = list.find((x) => x.id === current) ?? list.find((x) => x.id === settings.data?.default_vehicle_id) ?? list[0];
+    setValue("vehicle_id", pick.id);
+  }, [vehicles.data, settings.data, setValue, form]);
+  useEffect(() => {
+    const list = warehouses.data?.items.filter((w) => w.lat !== null);
+    if (!list?.length) return;
+    const current = Number(form.getValues("warehouse_id"));
+    setValue("warehouse_id", (list.find((w) => w.id === current) ?? list[0]).id);
+  }, [warehouses.data, setValue, form]);
+
   const calc = useAction(
     (body: { path: string; payload: Record<string, unknown> }) => api.post<RoutePlan>(body.path, body.payload),
     { invalidate: ["routes", "analytics"], silentError: true, onSuccess: (r) => { setResult(r); setError(null); setHighlight(null); setTraceStep(0); setPlaying(false); } },
